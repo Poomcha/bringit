@@ -1,0 +1,40 @@
+{% extends "layout.jinja" %}
+
+{% block title %} Authentification {% endblock %}
+
+{% block header %}
+{% include "header/header.jinja" %}
+{% endblock %}
+
+{% block main %}
+<div class="d-flex flex-column align-items-center d-relative w-sm-75 w-lg-50 w-xl-25 p-2 m-auto mt-3">
+    <ul class="nav nav-tabs w-100" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active fw-bold" href="" id="link-signin">Sign In</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link fw-bold" href="" id="link-signup">Sign Up</a>
+        </li>
+    </ul>
+    <div class="tab-content p-3 w-100" role="tablist">
+        <div class="tab-pane fade show active w-100" role="tabpanel" id="tabpanel-signin">
+            <form action="{{ url_for('auth.signin') }}" method="post"
+                class="d-flex flex-column align-items-center gap-3 mb-0">
+                {% include "auth/signin.jinja" %}
+                <div class="d-none">
+                    <input type="text" name="action" value="signin" required />
+                </div>
+            </form>
+        </div>
+        <div class="tab-pane w-100" role="tabpanel" id="tabpanel-signup">
+            <form action="{{ url_for('auth.signup') }}" method="post"
+                class="d-flex flex-column align-items-center gap-3 mb-0">
+                {% include "auth/signup.jinja" %}
+                <div class="d-none">
+                    <input type="text" name="action" value="signup" required />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

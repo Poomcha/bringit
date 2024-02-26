@@ -1,0 +1,17 @@
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS infos;
+
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE infos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    firstname TEXT NOT NULL,
+    lastname TEXT NOT NULL,
+    avatar BLOB,
+    FOREIGN KEY (user_id) REFERENCES users (id)
+)
