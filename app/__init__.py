@@ -32,6 +32,11 @@ def create_app(test_config=None):
 
     db.init_app(app)
 
+    # Initialize mock data
+    from app.helpers.mock_data import register_load_mock
+
+    register_load_mock(app)
+
     # Register blueprints
     from . import auth, index, profile
 
