@@ -18,8 +18,26 @@
 }
 
 .dropdown-menu-adjust {
-    position: absolute !important;
-    left: 0 !important;
+    transform-origin: right;
+    transform: translateX(-20%) !important;
+}
+
+.icon {
+    width: 1em;
+    height: 1em;
+    font-size: 24px;
+}
+
+.profile-thumb {
+    width: 2.5rem;
+    height: 2.5rem;
+    object-fit: cover;
+}
+
+.profile-picture {
+    width: 7.5rem;
+    height: 7.5rem;
+    object-fit: cover;
 }
 
 /* Small devices (landscape phones, 576px and up) */
@@ -34,6 +52,11 @@
     .w-md-25 { width: 25%!important; }
     .w-md-50 { width: 50%!important; }
     .w-md-75 { width: 75%!important; }
+    .profile-picture {
+        width: 10rem;
+        height: 10rem;
+        object-fit: cover;
+    }
 }
 
 /* Large devices (desktops, 992px and up) */

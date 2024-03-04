@@ -1,5 +1,7 @@
 import functools
 
+from random import randrange
+
 from flask import (
     Blueprint,
     flash,
@@ -40,6 +42,21 @@ def login_required(view):
     return wrapped_view
 
 
+def create_username(firstname, lastname):
+    username = f"{firstname.lower()}.{lastname.lower()}#{randrange(0, 999)}"
+    db = get_db()
+    usernames = [
+        item["username"]
+        for item in db.execute(
+            "SELECT username FROM infos WHERE username = (?)", (username,)
+        ).fetchall()
+    ]
+    if username in usernames:
+        return create_username(firstname, lastname)
+    else:
+        return username
+
+
 @bp.route("/", methods=["GET"])
 @login_prohibited
 def auth():
@@ -50,7 +67,7 @@ def auth():
 @login_prohibited
 def signup():
 
-    email = request.form["email"]
+    email = request.form["email"].lower()
     firstname = request.form["firstname"]
     lastname = request.form["lastname"]
     password = request.form["password"]
@@ -85,11 +102,12 @@ def signup():
                 "SELECT id FROM users WHERE email = (?)", (email,)
             ).fetchone()["id"]
             db.execute(
-                "INSERT INTO infos (firstname, lastname, user_id) VALUES (?, ?, ?)",
+                "INSERT INTO infos (firstname, lastname, user_id, username) VALUES (?, ?, ?, ?)",
                 (
                     firstname,
                     lastname,
                     user_id,
+                    create_username(firstname, lastname),
                 ),
             )
             db.commit()
@@ -141,7 +159,7 @@ def load_logged_in_user():
         g.user = (
             get_db()
             .execute(
-                "SELECT users.id, users.email, infos.firstname, infos.lastname, infos.avatar FROM users JOIN infos ON users.id = infos.user_id WHERE users.id = (?)",
+                "SELECT users.id, users.email, infos.firstname, infos.lastname, infos.avatar_url, infos.username, infos.description FROM users JOIN infos ON users.id = infos.user_id WHERE users.id = (?)",
                 (user_id,),
             )
             .fetchone()

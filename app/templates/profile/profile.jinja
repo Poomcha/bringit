@@ -1,0 +1,102 @@
+{% extends "layout.jinja" %}
+
+{% block title %}{{ g.user["firstname"] }} {{ g.user["lastname"] }}{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block main %}
+<section class="d-flex flex-column gap-3 mx-auto w-sm-75 w-lg-50 w-xl-25">
+    <h1 class="fw-bold text-light text-uppercase text-center">informations</h1>
+    <form action="{{ url_for('profile.profile') }}" method="post" enctype="multipart/form-data"
+        class="w-100 d-flex flex-column gap-3">
+        <div class="w-100 position-relative">
+            {% if g.user["avatar_url"] %}
+            <div class="d-flex w-100 d-flex justify-content-center position-relative">
+                <img src="{{ g.user['avatar_url'] }}" alt="User"
+                    class="profile-picture border border-3 border-light rounded-3" id="profile-picture" />
+            </div>
+            {% else %}
+            <div class="d-flex w-100 d-flex justify-content-center position-relative">
+                <img src="{{ url_for('static', filename='images/person-bounding-box.svg') }}" alt="User" width="16"
+                    height="16" class="profile-picture rounded-3" id="profile-picture" />
+            </div>
+            {% endif %}
+            <label for="avatar-profile" class="badge position-relative p-0 mt-1 w-100 badge-profile-picture-input">
+                <i class="bi bi-plus-circle text-primary icon"></i>
+                <input type="file" accept="image/*" name="avatar-profile" id="avatar-profile" class="d-none input-infos"
+                    disabled />
+            </label>
+        </div>
+        <div class="w-100">
+            <label for="email-profile" class="form-label text-light">Email</label>
+            <div class="w-100 d-flex gap-3">
+                <input type="email" required class="form-control input-infos" id="email-profile" name="email-profile"
+                    value="{{ g.user['email'] }}" disabled />
+            </div>
+        </div>
+        <div class="w-100">
+            <label for="firstname-profile" class="form-label text-light">Firstname</label>
+            <div class="w-100 d-flex gap-3">
+                <input type="text" required class="form-control input-infos" id="firstname-profile"
+                    name="firstname-profile" value="{{ g.user['firstname'] }}" disabled />
+            </div>
+        </div>
+        <div class="w-100">
+            <label for="lastname-profile" class="form-label text-light">Lastname</label>
+            <div class="w-100 d-flex gap-3">
+                <input type="text" required class="form-control input-infos" id="lastname-profile"
+                    name="lastname-profile" value="{{ g.user['lastname'] }}" disabled />
+            </div>
+        </div>
+        <div class="w-100">
+            <label for="username-profile" class="form-label text-light">Username</label>
+            <div class="w-100 d-flex gap-3">
+                <input type="text" required class="form-control" id="username-profile" name="username-profile"
+                    value="{{ g.user['username'] }}" disabled />
+            </div>
+        </div>
+        <div class="w-100">
+            <label for="description-profile" class="form-label text-light">Description</label>
+            <div class="w-100 d-flex gap-3">
+                <textarea required class="form-control input-infos" id="description-profile" name="description-profile"
+                    value="{{ g.user['description'] }}" placeholder="Description..."
+                    disabled>{{ g.user["description"] }}</textarea>
+            </div>
+        </div>
+        <div class="w-100 d-flex justify-content-between">
+            <button class="btn btn-secondary fw-bold" id="modify-infos">Modify</button>
+            <button class="btn btn-primary fw-bold" disabled type="submit" id="save-infos">Save</button>
+        </div>
+    </form>
+    <h2 class="fw-bold text-light text-uppercase text-center">password</h2>
+    <form action="{{ url_for('profile.password') }}" method="post" class="d-flex flex-column gap-3">
+        <div class="w-100">
+            <label for="old-password-profile" class="form-label text-light">Old password</label>
+            <div class="w-100 d-flex gap-3">
+                <input type="password" required class="form-control input-password" id="old-password-profile"
+                    name="old-password-profile" placeholder="Old Password" disabled />
+            </div>
+        </div>
+        <div class="w-100">
+            <label for="password-profile" class="form-label text-light">Password</label>
+            <div class="w-100 d-flex gap-3">
+                <input type="password" required class="form-control input-password" id="password-profile"
+                    name="password-profile" placeholder="Password" disabled />
+            </div>
+        </div>
+        <div class="w-100">
+            <label for="confirmation-profile" class="form-label text-light">Confirmation</label>
+            <div class="w-100 d-flex gap-3">
+                <input type="password" required class="form-control input-password" id="confirmation-profile"
+                    name="confirmation-profile" placeholder="Confirmation" disabled />
+            </div>
+        </div>
+        <div class="w-100 d-flex justify-content-between">
+            <button class="btn btn-secondary fw-bold" id="modify-password">Modify</button>
+            <button class="btn btn-primary fw-bold" disabled type="submit" id="save-password">Save</button>
+        </div>
+    </form>
+</section>
+{% endblock %}
+
+{% block footer %}{% endblock %}

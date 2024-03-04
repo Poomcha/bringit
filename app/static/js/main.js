@@ -1,5 +1,7 @@
-import { auth } from "./auth/auth.js"
+import { auth } from "./auth.js";
+import { profile } from "./profile.js";
 
-window.addEventListener('DOMContentLoaded', () => {
-    auth();
-})
+window.addEventListener("DOMContentLoaded", () => {
+  auth();
+  profile();
+});

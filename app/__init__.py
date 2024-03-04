@@ -33,13 +33,14 @@ def create_app(test_config=None):
     db.init_app(app)
 
     # Register blueprints
-    from . import auth, index
+    from . import auth, index, profile
 
     app.register_blueprint(auth.bp)
     app.register_blueprint(index.bp)
+    app.register_blueprint(profile.bp)
 
     # Register Jinja fliters
-    from . import filters
+    # from . import filters
 
     # See : https://flask.palletsprojects.com/en/3.0.x/templating/#controlling-autoescaping
     # And : https://stackoverflow.com/questions/21885814/how-to-iterate-through-a-modules-functions
