@@ -38,11 +38,12 @@ def create_app(test_config=None):
     register_load_mock(app)
 
     # Register blueprints
-    from . import auth, index, profile
+    from . import auth, index, profile, bringers
 
     app.register_blueprint(auth.bp)
     app.register_blueprint(index.bp)
     app.register_blueprint(profile.bp)
+    app.register_blueprint(bringers.bp)
 
     # Register Jinja fliters
     # from . import filters

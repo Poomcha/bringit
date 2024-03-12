@@ -4,6 +4,8 @@ from flask import current_app
 from app.db import get_db
 from app.auth import create_username
 
+from werkzeug.security import generate_password_hash
+
 GLOBAL_PASSWORD = "1234"
 
 
@@ -19,7 +21,7 @@ def load_mock_command():
                 (
                     int(row["id"]),
                     row["email"],
-                    GLOBAL_PASSWORD,
+                    generate_password_hash(GLOBAL_PASSWORD),
                 ),
             )
             db.execute(

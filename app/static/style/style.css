@@ -17,26 +17,33 @@
     top: 4.15rem;
 }
 
-.dropdown-menu-adjust {
-    transform-origin: right;
-    transform: translateX(-20%) !important;
-}
-
 .icon {
     width: 1em;
     height: 1em;
-    font-size: 24px;
+    font-size: 22px;
+}
+
+.avatar-medium-placeholder {
+    width: 1em;
+    height: 1em;
+    font-size: calc(4 * 16px);
 }
 
 .profile-thumb {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 22px;
+    height: 22px;
     object-fit: cover;
 }
 
 .profile-picture {
     width: 7.5rem;
     height: 7.5rem;
+    object-fit: cover;
+}
+
+.bringer-picture {
+    width: 4rem;
+    height: 4rem;
     object-fit: cover;
 }
 

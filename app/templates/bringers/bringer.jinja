@@ -1,0 +1,66 @@
+<div class="bg-light px-1 rounded-3 w-sm-50 align-self-center card">
+    <div class="row g-0">
+        <div class="col-4 d-flex">
+            {% if bringer['avatar_medium_url'] %}
+            <img src="{{ bringer['avatar_medium_url'] }}" class="bringer-picture rounded-2"
+                alt="{{ bringer['username'] }} avatar.">
+            {% else %}
+            <i class="bi bi-person-bounding-box avatar-medium-placeholder m-auto"></i>
+            {% endif %}
+        </div>
+        <div class="col-8">
+            <div class="card-header bg-light">
+                <h6 class="card-title fw-bold">{{ bringer['firstname'] }} {{ bringer['lastname'] }}
+                    <span class="fw-normal fst-italic">{{ bringer['username']}}</span>
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    {% if bringer['description'] %}
+                    {{ bringer['description'] }}
+                    {% else %}
+                    <span>...</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="card-footer bg-light d-flex justify-content-end">
+                <form class="d-flex flex-wrap gap-1 my-auto">
+                    {% if not status %}
+                    <input type="submit" value="Add"
+                        formaction="{{ url_for('bringers.add', bringer_id=bringer['user_id']) }}" formmethod="post"
+                        class="btn btn-primary btn-sm" />
+                    <input type="submit" value="Ignore"
+                        formaction="{{ url_for('bringers.ignore', bringer_id=bringer['user_id']) }}" formmethod="post"
+                        class="btn btn-primary btn-sm" />
+                    {% elif status == "ACCEPTED" %}
+                    <input type="submit" value="Remove"
+                        formaction="{{ url_for('bringers.remove', bringer_id=bringer['user_id']) }}" formmethod="post"
+                        class="btn btn-primary btn-sm" />
+                    <input type="submit" value="Ignore"
+                        formaction="{{ url_for('bringers.ignore', bringer_id=bringer['user_id']) }}" formmethod="post"
+                        class="btn btn-primary btn-sm" />
+                    {% elif status == "PENDING" %}
+                    <input type="submit" value="Cancel"
+                        formaction="{{ url_for('bringers.cancel', bringer_id=bringer['user_id']) }}" formmethod="post"
+                        class="btn btn-primary btn-sm" />
+                    <input type="submit" value="Ignore"
+                        formaction="{{ url_for('bringers.ignore', bringer_id=bringer['user_id']) }}" formmethod="post"
+                        class="btn btn-primary btn-sm" />
+                    {% elif status == "REJECTED" %}
+                    <input type="submit" value="Add"
+                        formaction="{{ url_for('bringers.add', bringer_id=bringer['user_id']) }}" formmethod="post"
+                        class="btn btn-primary btn-sm" />
+                    <input type="submit" value="Ignore"
+                        formaction="{{ url_for('bringers.ignore', bringer_id=bringer['user_id']) }}" formmethod="post"
+                        class="btn btn-primary btn-sm" />
+                    {% elif status == "IGNORED" %}
+                    <input type="submit" value="Unignore"
+                        formaction="{{ url_for('bringers.unignore', bringer_id=bringer['user_id']) }}" formmethod="post"
+                        class="btn btn-primary btn-sm" />
+                    {% else %}
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

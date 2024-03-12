@@ -1,0 +1,62 @@
+<div class="bg-light px-1 rounded-3 w-sm-50 card">
+    <div class="row g-0">
+        <div class="col-2 d-flex">
+            {% if bringer['avatar_thumb_url'] %}
+            <img src="{{ bringer['avatar_thumb_url'] }}" class="profile-thumb rounded-2"
+                alt="{{ bringer['username'] }} avatar.">
+            {% else %}
+            <i class="bi bi-person-bounding-box icon m-auto"></i>
+            {% endif %}
+        </div>
+        <div class="col-7">
+            <div class="card-body bg-light p-2 ms-2">
+                <h6 class="fw-bold m-0">{{ bringer['firstname'] }} {{ bringer['lastname'] }}
+                    <span class="fw-normal fst-italic">{{ bringer['username']}}</span>
+                </h6>
+            </div>
+        </div>
+        <div class="col-3 d-flex position-relative">
+            <button class="dropdown-toggle btn btn-sm btn-secondary m-auto" role="button" data-bs-toggle="dropdown">
+                <i class="bi bi-people-fill icon"></i>
+            </button>
+            <form class="dropdown-menu dropdown-menu-end position-absolute">
+                {% if bringer in accepted %}
+                <input type="submit" value="Remove"
+                    formaction="{{ url_for('bringers.remove', bringer_id=bringer['user_id']) }}" formmethod="post"
+                    class="dropdown-item" />
+                <input type="submit" value="Ignore"
+                    formaction="{{ url_for('bringers.ignore', bringer_id=bringer['user_id']) }}" formmethod="post"
+                    class="dropdown-item" />
+                {% elif bringer in pending %}
+                <input type="submit" value="Cancel"
+                    formaction="{{ url_for('bringers.cancel', bringer_id=bringer['user_id']) }}" formmethod="post"
+                    class="dropdown-item" />
+                <input type="submit" value="Ignore"
+                    formaction="{{ url_for('bringers.ignore', bringer_id=bringer['user_id']) }}" formmethod="post"
+                    class="dropdown-item" />
+                {% elif bringer in rejected %}
+                <input type="submit" value="Add"
+                    formaction="{{ url_for('bringers.add', bringer_id=bringer['user_id']) }}" formmethod="post"
+                    class="dropdown-item" />
+                <input type="submit" value="Ignore"
+                    formaction="{{ url_for('bringers.ignore', bringer_id=bringer['user_id']) }}" formmethod="post"
+                    class="dropdown-item" />
+                {% elif bringer in ignored %}
+                <input type="submit" value="Unignore"
+                    formaction="{{ url_for('bringers.unignore', bringer_id=bringer['user_id']) }}" formmethod="post"
+                    class="dropdown-item" />
+                {% elif bringer in to_confirm %}
+                <input type="submit" value="Accept"
+                    formaction="{{ url_for('bringers.accept', bringer_id=bringer['user_id']) }}" formmethod="post"
+                    class="dropdown-item" />
+                <input type="submit" value="Reject"
+                    formaction="{{ url_for('bringers.reject', bringer_id=bringer['user_id']) }}" formmethod="post"
+                    class="dropdown-item" />
+                <input type="submit" value="Ignore"
+                    formaction="{{ url_for('bringers.ignore', bringer_id=bringer['user_id']) }}" formmethod="post"
+                    class="dropdown-item" />
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>

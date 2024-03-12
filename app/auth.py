@@ -159,7 +159,7 @@ def load_logged_in_user():
         g.user = (
             get_db()
             .execute(
-                "SELECT users.id, users.email, infos.firstname, infos.lastname, infos.avatar_url, infos.username, infos.description FROM users JOIN infos ON users.id = infos.user_id WHERE users.id = (?)",
+                "SELECT users.id, users.email, infos.firstname, infos.lastname, infos.avatar_url, infos.avatar_thumb_url, infos.avatar_medium_url, infos.username, infos.description FROM users JOIN infos ON users.id = infos.user_id WHERE users.id = (?)",
                 (user_id,),
             )
             .fetchone()

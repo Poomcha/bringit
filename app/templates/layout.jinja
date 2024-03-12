@@ -20,20 +20,19 @@
             {# Create logged in navigation #}
             <ul class="navbar-nav ms-auto me-2">
                 <li class="nav-item dropdown">
-
                     <a class="nav-link dropdown-toggle text-light fw-bold d-flex align-items-center gap-2" href="#"
                         role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span>{{ g.user["firstname"] }} {{ g.user["lastname"] }}</span>
-                        {% if g.user["avatar"] %}
-                        <img src="{{ g.user['avatar'] }}" alt="Avatar"
-                            class="profile-thumb rounded-1 border border-2 border-light" />
+                        <span>{{ g.user["username"] }}</span>
+                        {% if g.user["avatar_thumb_url"] %}
+                        <img src="{{ g.user['avatar_thumb_url'] }}" alt="Avatar" class="profile-thumb rounded-1" />
                         {% else %}
                         <i class="bi bi-person-bounding-box icon"></i>
                         {% endif %}
                     </a>
-                    <ul class="dropdown-menu position-absolute dropdown-menu-adjust">
+                    <ul class="dropdown-menu dropdown-menu-end position-absolute">
                         <li class="dropdown-item"><a class="nav-link p-0" href="#">Lists</a></li>
-                        <li class="dropdown-item"><a class="nav-link p-0" href="#">Bringers</a></li>
+                        <li class="dropdown-item"><a class="nav-link p-0"
+                                href="{{ url_for('bringers.index') }}">Bringers</a></li>
                         <li class="dropdown-item"><a class="nav-link p-0"
                                 href="{{ url_for('profile.profile') }}">Profile</a></li>
                         <li>

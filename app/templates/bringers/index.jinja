@@ -1,0 +1,110 @@
+{% extends "layout.jinja" %}
+
+{% block title %} Bringers {% endblock %}
+
+{% block header %}
+{% include "bringers/header.jinja" %}
+{% endblock %}
+
+{% block main %}
+<section class="d-flex flex-column gap-3 mt-3">
+    {% if bringer %}
+    {% include "bringers/bringer.jinja" %}
+    {% endif %}
+    <div class="d-flex py-3 flex-column gap-3">
+        <h6 class="text-light fw-bold">
+            My Bringers
+            <span class="badge text-bg-secondary ms-1">
+                {{ accepted | length }}
+            </span>
+        </h6>
+        <div class="d-flex flex-wrap gap-3">
+            {% if accepted | length == 0 %}
+            <p class="text-secondary">
+                No Bringers in your contact yet ! Add new Bringers by their username.
+            </p>
+            {% else %}
+            {% for bringer in accepted %}
+            {% include "bringers/mini-bringer.jinja" %}
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    <div class="d-flex py-3 flex-column gap-3">
+        <h6 class="text-light fw-bold">
+            Bringers to confirm
+            <span class="badge text-bg-secondary ms-1">
+                {{ to_confirm | length }}
+            </span>
+        </h6>
+        <div class="d-flex flex-wrap gap-3">
+            {% if to_confirm | length == 0 %}
+            <p class="text-secondary">
+                No Bringers request waiting.
+            </p>
+            {% else %}
+            {% for bringer in to_confirm %}
+            {% include "bringers/mini-bringer.jinja" %}
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    <div class="d-flex py-3 flex-column gap-3">
+        <h6 class="text-light fw-bold">
+            Bringers pending
+            <span class="badge text-bg-secondary ms-1">
+                {{ pending | length }}
+            </span>
+        </h6>
+        <div class="d-flex flex-wrap gap-3">
+            {% if pending | length == 0 %}
+            <p class="text-secondary">
+                No Bringers invitations pending. Add new Bringers by their username !
+            </p>
+            {% else %}
+            {% for bringer in pending %}
+            {% include "bringers/mini-bringer.jinja" %}
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    <div class="d-flex py-3 flex-column gap-3">
+        <h6 class="text-light fw-bold">
+            Bringers rejected
+            <span class="badge text-bg-secondary ms-1">
+                {{ rejected | length }}
+            </span>
+        </h6>
+        <div class="d-flex flex-wrap gap-3">
+            {% if rejected | length == 0 %}
+            <p class="text-secondary">
+                No Bringers rejected.
+            </p>
+            {% else %}
+            {% for bringer in rejected %}
+            {% include "bringers/mini-bringer.jinja" %}
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    <div class="d-flex py-3 flex-column gap-3">
+        <h6 class="text-light fw-bold">
+            Bringers ignored
+            <span class="badge text-bg-secondary ms-1">
+                {{ ignored | length }}
+            </span>
+        </h6>
+        <div class="d-flex flex-wrap gap-3">
+            {% if ignored | length == 0 %}
+            <p class="text-secondary">
+                No Bringers ignored.
+            </p>
+            {% else %}
+            {% for bringer in ignored %}
+            {% include "bringers/mini-bringer.jinja" %}
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
