@@ -3,67 +3,79 @@
 {% block title %}Create List{% endblock %}
 
 {% block section %}
-<form class="d-flex flex-column gap-3" action="{{ url_for('lists.create') }}" method="post" id="listform"
-    enctype="multipart/form-data" name="listform">
+{% set modify = "/lists/modify/" in request.path %}
+<form class="d-flex flex-column gap-3"
+    action="{% if modify %}{{ url_for('lists.modify', list_id=list_id) }}{% else %}{{ url_for('lists.create') }}{% endif %}"
+    method="post" id="listform" enctype="multipart/form-data" name="listform">
     <h4 class="text-light text-center mt-3">List</h4>
-    {% for list_field in list_form if list_field.type != "SubmitField" %}
     <div class="d-flex flex-column">
-        {{ list_field.label(class="form-label text-light") }}
-        {% if list_field.type == "BooleanField" %}
-        <h6 class="text-light mb-3">Bringers</h6>
+        <label class="form-label text-light" for="list_title">Title</label>
+        <input type="text" name="list_title" id="list_title" class="form-control"
+            value="{% if modify %}{{ current_list['title'] }}{% endif %}" />
+    </div>
+    <div class="d-flex flex-column">
+        <label class="form-label text-light" for="list_description">Description</label>
+        {% if modify %}
+        <textarea name="list_description" id="list_description"
+            class="form-control">{{ current_list['description'] }}</textarea>
+        {% else %}
+        <textarea name="list_description" id="list_description" class="form-control"></textarea>
+        {% endif %}
+    </div>
+    <div class="d-flex flex-column">
+        <label class="form-label text-light" for="list_image">Image</label>
+        <input type="file" name="list_image" id="list_image" class="form-control" />
+    </div>
+    <div class="d-flex flex-column">
+        <label class="form-label text-light" for="list_date">Date</label>
+        <input type="datetime-local" name="list_date" id="list_date" class="form-control"
+            value="{% if modify %}{{ current_list['expires_at'] }}{% endif %}" />
+    </div>
+    <div class="d-flex flex-column">
+        <label class="form-label text-light">Bringers</label>
         <div class="bg-light p-3 d-flex flex-column gap-3 form-control" style="max-height: 200px; overflow-y: scroll;">
             {% for bringer in my_bringers %}
             <div class="form-check">
-                {{ list_field(class="form-check-input", value=bringer[0]) }}
-                <label class="form-check-label">{{ bringer[1] }}</label>
+                {% if modify %}
+                {% if bringer[0] in current_bringers_id %}
+                <input type="checkbox" name="list_bringers" id="list_bringers" class="form-check-input"
+                    value="{{ bringer[0] }}" checked />
+                {% else %}
+                <input type="checkbox" name="list_bringers" id="list_bringers" class="form-check-input"
+                    value="{{ bringer[0] }}" />
+                {% endif %}
+                {% else %}
+                <input type="checkbox" name="list_bringers" id="list_bringers" class="form-check-input"
+                    value="{{ bringer[0] }}" />
+                {% endif %}
+                <label class="form-label">{{ bringer[1] }}</label>
             </div>
             {% endfor %}
         </div>
-        {% else %}
-        {{ list_field(class="form-control") }}
-        {% endif %}
     </div>
-    {% endfor %}
     <hr class="border border-light z-1" />
     <div id="item-list">
+        {% if not modify %}
         <div class="d-flex flex-column item-root" data-bgit="item-form-0">
-            <div class="item-form" data-bgit="item-form-0">
-                <div class="d-flex flex-column gap-3">
-                    <h5 class="text-light text-center">Item</h5>
-                    {{ item_form.itemform(class="d-flex flex-column gap-3 p-0 item-inputs-list") }}
-                    <div class="d-flex justify-content-between">
-                        <button class="remove-item btn btn-danger" data-bgit="item-form-0">Remove</button>
-                        <button class="validate-item btn btn-success" data-bgit="item-form-0">Validate</button>
-                    </div>
-                    <hr class="border border-light z-1" />
-                </div>
-            </div>
-            <div class="card" data-bgit="item-form-0" hidden>
-                <div class="row g-0">
-                    <div class="col-3 d-flex">
-                        <img src="" class="m-auto img-fluid rounded-start item-image h-100" data-bgit="item-form-0"
-                            alt="Item">
-                    </div>
-                    <div class="col-9">
-                        <div class="card-body">
-                            <h6 class="card-title" data-bgit="item-form-0">Item</h6>
-                            <div class="d-flex justify-content-between">
-                                <button class="remove-item btn btn-sm btn-danger"
-                                    data-bgit="item-form-0">Remove</button>
-                                <button class="modify-item btn btn-sm btn-secondary"
-                                    data-bgit="item-form-0">Modify</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% include "items/item-form.jinja" %}
         </div>
+        {% else %}
+        <div class="d-flex flex-column item-root d-none" data-bgit="item-form-0">
+            {% include "items/item-form.jinja" without context %}
+        </div>
+        {% for item in current_items %}
+        {% set dataBgit = 'item-form-' + loop.index|string |trim %}
+        <div class="d-flex flex-column item-root" data-bgit="{{ dataBgit }}">
+            {% include "items/item-form.jinja" %}
+        </div>
+        {% endfor %}
+        {% endif %}
     </div>
     <div class="mt-3">
         <button class="add-item btn btn-primary">Add Item</button>
     </div>
     <div class="mt-3">
-        {{ list_form.submit(class="btn btn-primary", value="Submit") }}
+        <input type="submit" value="Submit" class="btn btn-primary" />
     </div>
 </form>
 {% endblock %}

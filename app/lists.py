@@ -4,9 +4,6 @@ from app.db import get_db
 from app.auth import login_required
 from app.helpers import handle_image
 
-from app.forms.list import ListForm
-from app.forms.item import ItemFormList
-
 from datetime import datetime
 
 bp = Blueprint("lists", __name__, url_prefix="/lists")
@@ -27,7 +24,7 @@ def index():
     old_lists = []
 
     for ls in lists:
-        if datetime.fromisoformat(ls["expires_at"]) < now:
+        if ls["expires_at"] and datetime.fromisoformat(ls["expires_at"]) < now:
             old_lists.append(ls)
         else:
             if ls["creator_id"] == g.user["id"]:
@@ -40,6 +37,7 @@ def index():
         my_lists=my_lists,
         my_bringers_lists=my_bringers_lists,
         old_lists=old_lists,
+        user_id=g.user["id"],
     )
 
 
@@ -85,78 +83,43 @@ def create():
         for bringer in my_bringers
     ]
 
-    list_form = ListForm()
-    item_form = ItemFormList()
-
     if request.method == "POST":
-        form = ListForm(request.form)
-        # Process list inputs
-        post_list = {
-            "creator_id": g.user["id"],
-            "title": form.title.data,
-            "description": form.description.data,
-            "image": request.files["list_image"],
-            "date": datetime.fromisoformat(form.date.raw_data[0]),
-            "bringers": (
-                [
-                    bringer
-                    for bringer in request.form.lists()
-                    if bringer[0] == "list_bringers"
-                ][0][1]
-                if form.bringers.data
-                else None
-            ),
-        }
+        form = request.form
 
-        # Process items input
-        post_items = [
-            (input.split("_")[1], request.form[input])
-            for input in request.form
-            if input.startswith("itemform")
-        ]
-        post_items_processed = []
-        for input in post_items:
-            id = int(input[0].split("-")[1])
-            try:
-                post_items_processed[id].append(input)
-            except IndexError:
-                post_items_processed.append([input])
-                post_items_processed[id].append(
-                    (f"image-{id}", request.files[f"itemform-item_image-{id}"])
-                )
-        post_items_processed_dict = []
-        for item in post_items_processed:
-            temp = {}
-            for attribute in item:
-                temp.setdefault(f"{attribute[0].split('-')[0]}", attribute[1])
-            post_items_processed_dict.append(temp)
+        # Process list inputs
+        post_list = process_list_input(form, request.files)
+
+        # # Process items input
+        post_items = process_item_input(form, request.files)
 
         # Save list
         list_id = set_list(db, post_list, g.user["id"])
 
         # Save items
-        [
-            set_item_for_list(db, item, list_id, g.user["id"])
-            for item in post_items_processed_dict
-        ]
+        [set_item_for_list(db, item, list_id, g.user["id"]) for item in post_items]
 
         return redirect(url_for("lists.index"))
 
     return render_template(
         "lists/create.jinja",
-        list_form=list_form,
-        item_form=item_form,
         my_bringers=my_bringers,
     )
 
 
 @bp.route("/modify/<int:list_id>", methods=["GET", "POST"])
 @login_required
-def modify():
+def modify(list_id):
     db = get_db()
 
-    list_form = ListForm()
-    item_form = ItemFormList()
+    # Request initial datas
+    current_list = get_list_details(db, list_id)
+    current_bringers_id = [
+        bringer["user_id"] for bringer in get_users_id_for_list(db, list_id)
+    ]
+    current_bringers = [get_user_infos(db, user_id) for user_id in current_bringers_id]
+    current_items = [
+        get_item_details(db, item["id"]) for item in get_items_id_for_list(db, list_id)
+    ]
 
     my_bringers = get_bringers_for_user(db, g.user["id"])
     my_bringers = [
@@ -165,9 +128,91 @@ def modify():
     ]
 
     if request.method == "POST":
+        form = request.form
+        files = request.files
+
+        # Process form
+        post_list = process_list_input(form, files)
+        post_items = process_item_input(form, files)
+
+        # Delete removed items
+        current_items_ids = [item["id"] for item in get_items_id_for_list(db, list_id)]
+        to_save_items_ids = [
+            int(item["id"]) for item in post_items if "id" in item.keys()
+        ]
+        for item_id in current_items_ids:
+            if item_id not in to_save_items_ids:
+                remove_item(db, item_id)
+        # Save list and items
+        update_list(db, post_list, list_id, g.user["id"], current_bringers_id)
+        [update_item(db, item, list_id, g.user["id"]) for item in post_items]
+
         return redirect(url_for("lists.index"))
 
-    return render_template("lists/create.jinja")
+    return render_template(
+        "lists/create.jinja",
+        list_id=list_id,
+        my_bringers=my_bringers,
+        current_list=current_list,
+        current_bringers_id=current_bringers_id,
+        current_bringers=current_bringers,
+        current_items=current_items,
+    )
+
+
+@bp.route("/delete/<int:list_id>", methods=["GET"])
+@login_required
+def delete(list_id):
+    db = get_db()
+    error = None
+
+    list_user_infos = db.execute(
+        """
+        SELECT * FROM lists_users 
+            WHERE list_id = (?) AND user_id = (?)
+        """,
+        (
+            list_id,
+            g.user["id"],
+        ),
+    ).fetchone()
+
+    if list_user_infos["right"] == "CREATOR":
+        handle_image.delete_image_list(list_id)
+        db.execute(
+            """
+            DELETE FROM lists WHERE id = (?)
+            """,
+            (list_id,),
+        )
+        db.commit()
+        db.execute(
+            """
+            DELETE FROM items_users
+                WHERE item_id 
+                    IN (
+                        SELECT item_id 
+                            FROM lists_items 
+                                WHERE list_id = (?)
+                    )
+            """,
+            (list_id,),
+        )
+        db.commit()
+
+        # Delete related item image
+        items_ids = [item["id"] for item in get_items_id_for_list(db, list_id)]
+        [remove_item(db, item_id) for items_id in items_ids]
+
+        db.execute(
+            """
+            DELETE FROM lists_items
+                WHERE list_id = (?)
+            """,
+            (list_id,),
+        )
+
+    return redirect(url_for("lists.index"))
 
 
 def get_lists_id_for_user(db, user_id):
@@ -196,7 +241,7 @@ def get_users_id_for_list(db, list_id):
         (list_id,),
     ).fetchall()
 
-    return users_in_lists
+    return users_in_list
 
 
 def get_items_id_for_list(db, list_id):
@@ -297,7 +342,7 @@ def get_bringers_for_user(db, user_id):
     return bringers
 
 
-def set_list(db, post_list, user_id):
+def set_list(db, post_list, user_id, modify=False):
     # Handle image
     [image_url, thumb_url, medium_url, delete_url] = (
         handle_image.upload_image(post_list["image"])
@@ -346,7 +391,7 @@ def set_list(db, post_list, user_id):
     return list_id
 
 
-def set_item_for_list(db, post_item, list_id, creator_id):
+def set_item_for_list(db, post_item, list_id, creator_id, modify=False):
     # Handle image
     [item_url, item_thumb_url, item_medium_url, delete_item_url] = (
         handle_image.upload_image(post_item["image"])
@@ -404,9 +449,190 @@ def set_user_for_list(db, user_id, list_id, right):
     return
 
 
-def update_list(db, list_id):
+def remove_user_for_list(db, user_id, list_id):
+    db.execute(
+        """
+        DELETE FROM lists_users
+            WHERE user_id = (?) AND list_id = (?)
+        """,
+        (
+            user_id,
+            list_id,
+        ),
+    )
+    db.commit()
     return
 
 
-def update_item(db, item_id):
+def remove_item(db, item_id):
+    handle_image.delete_image_item(item_id)
+    db.execute(
+        """
+        DELETE FROM items
+            WHERE id = (?)
+        """,
+        (item_id,),
+    )
+    db.commit()
+    return
+
+
+def process_list_input(form, files):
+    post_list = {
+        "creator_id": g.user["id"],
+        "title": form["list_title"],
+        "description": form["list_description"],
+        "image": files["list_image"],
+        "date": form["list_date"],
+        "bringers": (
+            (form.to_dict(flat=False)["list_bringers"])
+            if "list_bringers" in form.keys()
+            else []
+        ),
+    }
+    return post_list
+
+
+def process_item_input(form, files):
+    post_items = [
+        (input.split("_")[1], form[input])
+        for input in request.form
+        if input.startswith("item")
+    ]
+    post_items_processed = []
+    for input in post_items:
+        id = int(input[0].split("-")[1])
+        try:
+            post_items_processed[id].append(input)
+        except IndexError:
+            post_items_processed.append([input])
+            post_items_processed[id].append((f"image-{id}", files[f"item_image-{id}"]))
+    post_items_processed_dict = []
+    for item in post_items_processed:
+        temp = {}
+        for attribute in item:
+            temp.setdefault(f"{attribute[0].split('-')[0]}", attribute[1])
+        post_items_processed_dict.append(temp)
+
+    return post_items_processed_dict
+
+
+def update_list(db, post_list, list_id, user_id, bringers):
+    # Handle image
+    [image_url, thumb_url, medium_url, delete_url] = (
+        handle_image.upload_image(post_list["image"])
+        if post_list["image"]
+        else [None, None, None, None]
+    )
+    new_list = {
+        "creator_id": user_id,
+        "title": post_list["title"],
+        "description": post_list["description"],
+        "expires_at": post_list["date"],
+    }
+    # Save list
+    if image_url:
+        # Delete old image
+        handle_image.delete_image_list(list_id)
+        # Update new image
+        db.execute(
+            """
+            UPDATE lists
+                SET list_url  = (?),
+                    list_medium_url = (?),
+                    list_thumb_url = (?),
+                    delete_list_url = (?)
+                        WHERE id = (?)
+            """,
+            (
+                image_url,
+                medium_url,
+                thumb_url,
+                delete_url,
+                list_id,
+            ),
+        )
+        db.commit()
+
+    db.execute(
+        """
+        UPDATE lists
+            SET title = (?),
+                description = (?),
+                expires_at = (?),
+                updated_at = (?)
+                    WHERE id = (?)
+        """,
+        (
+            new_list["title"],
+            new_list["description"],
+            new_list["expires_at"],
+            datetime.now(),
+            list_id,
+        ),
+    )
+    db.commit()
+
+    # Handle bringers
+    for bringer_id in post_list["bringers"]:
+        if bringer_id not in bringers and bringer_id != user_id:
+            set_user_for_list(db, bringer_id, list_id, "INVITED")
+    for bringer_id in bringers:
+        if str(bringer_id) not in post_list["bringers"] and bringer_id != user_id:
+            remove_user_for_list(db, bringer_id, list_id)
+
+    return
+
+
+def update_item(db, item, list_id, user_id):
+    if "id" in item.keys():
+        if item["image"]:
+            # Handle image
+            [item_url, item_thumb_url, item_medium_url, delete_item_url] = (
+                handle_image.upload_image(item["image"])
+            )
+            # Delete old image
+            handle_image.delete_image_item(item["id"])
+            # Update new image
+            db.execute(
+                """
+                UPDATE items
+                    SET item_url  = (?),
+                        item_medium_url = (?),
+                        item_thumb_url = (?),
+                        delete_item_url = (?)
+                            WHERE id = (?)
+                """,
+                (
+                    image_url,
+                    medium_url,
+                    thumb_url,
+                    delete_url,
+                    item["id"],
+                ),
+            )
+            db.commit()
+
+        db.execute(
+            """
+            UPDATE items
+                SET title = (?),
+                    description = (?),
+                    external_link = (?),
+                    type = (?),
+                    updated_at = (?)
+                    WHERE id = (?)
+            """,
+            (
+                item["title"],
+                item["description"],
+                item["url"],
+                item["type"],
+                datetime.now(),
+                item["id"],
+            ),
+        )
+        db.commit()
+    else:
+        set_item_for_list(db, item, list_id, user_id)
     return

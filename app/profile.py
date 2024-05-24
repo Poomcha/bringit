@@ -33,11 +33,11 @@ def profile():
         username = g.user["username"]
 
         # Upload image to goopics.net
-        from app.helpers.handle_image import upload_image, delete_image
+        from app.helpers.handle_image import upload_image, delete_image_user
 
         if avatar:
             if g.user["avatar_url"]:
-                delete_image(g.user["id"])
+                delete_image_user(g.user["id"])
             [image_url, thumb_url, medium_url, delete_url] = upload_image(avatar)
         else:
             if not g.user["avatar_url"]:

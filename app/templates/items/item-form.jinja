@@ -1,0 +1,84 @@
+<div class="item-form" data-bgit="{% if dataBgit %}{{ dataBgit }} {% else %}{{ 'item-form-0' }}{% endif %}">
+    <div class="d-flex flex-column gap-3">
+        <h5 class="text-light text-center">Item</h5>
+        <ul class="d-flex flex-column gap-3 p-0 item-inputs-list">
+            {% if modify %}
+            <li class="d-flex flex-column d-none">
+                <input type="hidden" value="{{ item['id'] }}" id="item_id" name="item_id" data-bgit="item_form-0" />
+            </li>
+            {% endif %}
+            <li class="d-flex flex-column">
+                <label for="item_title" class="form-label text-light">Title</label>
+                {% if modify %}
+                <input id="item_title" name="item_title" type="text" value="{{ item['title'] }}" class="form-control"
+                    data-bgit="{% if dataBgit %}{{ dataBgit }} {% else %}{{ 'item-form-0' }}{% endif %}">
+                {% else %}
+                <input id="item_title" name="item_title" type="text" value="" class="form-control"
+                    data-bgit="{% if dataBgit %}{{ dataBgit }} {% else %}{{ 'item-form-0' }}{% endif %}">
+                {% endif %}
+            </li>
+            <li class="d-flex flex-column">
+                <label for="item_description" class="form-label text-light">Description</label>
+                {% if modify %}
+                <textarea id="item_description" name="item_description" class="form-control"
+                    data-bgit="{% if dataBgit %}{{ dataBgit }} {% else %}{{ 'item-form-0' }}{% endif %}">{{ item['description'] }}</textarea>
+                {% else %}
+                <textarea id="item_description" name="item_description" class="form-control"
+                    data-bgit="{% if dataBgit %}{{ dataBgit }} {% else %}{{ 'item-form-0' }}{% endif %}"></textarea>
+                {% endif %}
+            </li>
+            <li class="d-flex flex-column">
+                <label for="item_image" class="form-label text-light">Image</label>
+                <input id="item_image" name="item_image" type="file" class="form-control"
+                    data-bgit="{% if dataBgit %}{{ dataBgit }} {% else %}{{ 'item-form-0' }}{% endif %}">
+            </li>
+            <li class="d-flex flex-column">
+                <label for="item_url" class="form-label text-light">URL</label>
+                {% if modify %}
+                <input id="item_url" name="item_url" type="url" value="{{ item['external_link'] }}" class="form-control"
+                    data-bgit="{% if dataBgit %}{{ dataBgit }} {% else %}{{ 'item-form-0' }}{% endif %}">
+                {% else %}
+                <input id="item_url" name="item_url" type="url" value="" class="form-control"
+                    data-bgit="{% if dataBgit %}{{ dataBgit }} {% else %}{{ 'item-form-0' }}{% endif %}">
+                {% endif %}
+            </li>
+            <li class="d-flex flex-column">
+                <label for="item_type" class="form-label text-light">Type</label>
+                {% if modify %}
+                <input id="item_type" name="item_type" type="text" value="{{ item['type'] }}" class="form-control"
+                    data-bgit="{% if dataBgit %}{{ dataBgit }} {% else %}{{ 'item-form-0' }}{% endif %}">
+                {% else %}
+                <input id="item_type" name="item_type" type="text" value="" class="form-control"
+                    data-bgit="{% if dataBgit %}{{ dataBgit }} {% else %}{{ 'item-form-0' }}{% endif %}">
+                {% endif %}
+            </li>
+        </ul>
+        <div class="d-flex justify-content-between">
+            <button class="remove-item btn btn-danger"
+                data-bgit="{% if dataBgit %}{{ dataBgit }} {% else %}{{ 'item-form-0' }}{% endif %}">Remove</button>
+            <button class="validate-item btn btn-success"
+                data-bgit="{% if dataBgit %}{{ dataBgit }} {% else %}{{ 'item-form-0' }}{% endif %}">Validate</button>
+        </div>
+        <hr class="border border-light z-1" />
+    </div>
+</div>
+<div class="card" data-bgit="{% if dataBgit %}{{ dataBgit }} {% else %}{{ 'item-form-0' }}{% endif %}" hidden>
+    <div class="row g-0">
+        <div class="col-3 d-flex">
+            <img src="" class="m-auto img-fluid rounded-start item-image h-100"
+                data-bgit="{% if dataBgit %}{{ dataBgit }} {% else %}{{ 'item-form-0' }}{% endif %}" alt="Item">
+        </div>
+        <div class="col-9">
+            <div class="card-body">
+                <h6 class="card-title" data-bgit="{% if dataBgit %}{{ dataBgit }} {% else %}{{ 'item-form-0' }}{% endif
+                    %}">Item</h6>
+                <div class="d-flex justify-content-between">
+                    <button class="remove-item btn btn-sm btn-danger" data-bgit="{% if dataBgit %}{{ dataBgit }} {% else %}{{ 'item-form-0' }}{% endif
+                        %}">Remove</button>
+                    <button class="modify-item btn btn-sm btn-secondary" data-bgit="{% if dataBgit %}{{ dataBgit }} {% else %}{{ 'item-form-0' }}{% endif
+                        %}">Modify</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

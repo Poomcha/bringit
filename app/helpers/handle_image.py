@@ -28,7 +28,7 @@ def upload_image(image):
         return [image_url, thumb_url, medium_url, delete_url]
 
 
-def delete_image(user_id):
+def delete_image_user(user_id):
     db = get_db()
 
     delete_url = db.execute(
@@ -36,6 +36,26 @@ def delete_image(user_id):
     ).fetchone()["delete_avatar_url"]
 
     r = requests.post(delete_url)
-    print(r)
+    return
 
+
+def delete_image_list(list_id):
+    db = get_db()
+
+    delete_url = db.execute(
+        "SELECT delete_list_url FROM lists WHERE id = (?)", (list_id,)
+    ).fetchone()["delete_list_url"]
+
+    r = requests.post(delete_url)
+    return
+
+
+def delete_image_item(item_id):
+    db = get_db()
+
+    delete_url = db.execute(
+        "SELECT delete_item_url FROM items WHERE id = (?)", (item_id,)
+    ).fetchone()["delete_item_url"]
+
+    r = requests.post(delete_url)
     return

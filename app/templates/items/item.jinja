@@ -14,7 +14,10 @@
         </div>
     </div>
     <div class="d-flex flex-column">
-        <span class="text-light">{{ item["details"]["external_link"] }}</span>
+        <span class="text-light">
+            <a href="{{ item['details']['external_link'] }}" target="_blank">{{ item["details"]["external_link"]
+                }}</a>
+        </span>
         <p class="text-light">{{ item["details"]["description"] }}</p>
         <form method="post">
             {% if user_id in item["users_id"] %}

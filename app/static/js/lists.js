@@ -1,13 +1,15 @@
 const url_path = window.location.pathname;
-const form_item_init =
-  url_path === "/lists/create"
-    ? document.querySelector(".item-root[data-bgit='item-form-0']")
-    : undefined;
-const form_item_bp =
-  url_path === "/lists/create" ? form_item_init.cloneNode(true) : undefined;
+const allowed =
+  url_path === "/lists/create" || url_path.startsWith("/lists/modify");
+const form_item_init = allowed
+  ? document.querySelector(".item-root[data-bgit='item-form-0']")
+  : undefined;
+const form_item_bp = allowed ? form_item_init.cloneNode(true) : undefined;
+if (allowed && form_item_bp.classList.contains("d-none"))
+  form_item_bp.classList.remove("d-none");
 
 function lists() {
-  if (url_path === "/lists/create") {
+  if (allowed) {
     const add_item_btn = document.querySelector(".add-item");
     add_item_btn.addEventListener("click", handleAddItem);
 
@@ -15,6 +17,17 @@ function lists() {
 
     const form = document.querySelector("#listform");
     form.addEventListener("submit", handleSubmit);
+
+    if (url_path.startsWith("/lists/modify/")) {
+      const form_items = document.querySelectorAll(".item-root");
+      form_items.forEach((form_item, index) => {
+        // form_item.querySelectorAll("[id^='item']").forEach((input) => {
+        //   input.id = `${input.id}-${index}`;
+        //   input.name = `${input.id}`;
+        // });
+        handleItem(form_item);
+      });
+    }
 
     return;
   }
@@ -48,20 +61,13 @@ function handleItem(form_item) {
   const modify_btn = form_item.querySelector(".modify-item");
   modify_btn.addEventListener("click", handleModifyItem);
 
-  const inputs_list = form_item.querySelectorAll(".item-inputs-list > li");
-  inputs_list.forEach((li) => {
-    li.classList.add("d-flex", "flex-column");
-    li.childNodes[0].classList.add("form-label", "text-light");
-    li.childNodes[2].classList.add("form-control");
-    li.childNodes[2].setAttribute("data-bgit", `item-form-${form_item_id}`);
-  });
   return form_item;
 }
 
 function handleRemoveItem(event) {
   event.preventDefault();
 
-  const item_id = event.target.dataset["bgit"];
+  const item_id = event.target.dataset["bgit"].trim();
 
   document.querySelector(`.item-root[data-bgit='${item_id}']`).remove();
   return;
@@ -85,10 +91,9 @@ function handleValidateItem(event) {
 
 function handleItemPreview(item) {
   const item_id = item.dataset["bgit"];
-
   // Handles image preview
   const image_input = document.querySelector(
-    `#itemform-item_image[data-bgit='${item_id}']`
+    `#item_image[data-bgit='${item_id}']`
   );
   const image_preview = document.querySelector(
     `.item-image[data-bgit='${item_id}']`
@@ -112,7 +117,7 @@ function handleItemPreview(item) {
 
   // Handles title preview
   const title_input = document.querySelector(
-    `#itemform-item_title[data-bgit='${item_id}']`
+    `#item_title[data-bgit='${item_id}']`
   );
   const title_preview = document.querySelector(
     `.card-title[data-bgit='${item_id}']`
@@ -138,11 +143,18 @@ function handleModifyItem(event) {
 }
 
 function handleSubmit(event) {
+  // Remove utility item form
+  if (url_path.startsWith("/lists/modify/")) {
+    const utility_item_form = document.querySelector(".item-root.d-none");
+    utility_item_form.remove();
+  }
   // Rename fields name and id for each items
   const item_roots = event.target.querySelectorAll(".item-root");
-  item_roots.forEach((root) => {
-    const root_number = parseInt(root.dataset["bgit"].split("-")[2]);
-    root.querySelectorAll("[id^='itemform-item']").forEach((input) => {
+  item_roots.forEach((root, index) => {
+    const root_number = url_path.startsWith("/lists/modify/")
+      ? index
+      : parseInt(root.dataset["bgit"].split("-")[2]);
+    root.querySelectorAll("[id^='item']").forEach((input) => {
       input.id = `${input.id}-${root_number}`;
       input.name = `${input.id}`;
     });
