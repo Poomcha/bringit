@@ -30,7 +30,8 @@
                         {% endif %}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end position-absolute">
-                        <li class="dropdown-item"><a class="nav-link p-0" href="#">Lists</a></li>
+                        <li class="dropdown-item"><a class="nav-link p-0" href="{{ url_for('lists.index') }}">Lists</a>
+                        </li>
                         <li class="dropdown-item"><a class="nav-link p-0"
                                 href="{{ url_for('bringers.index') }}">Bringers</a></li>
                         <li class="dropdown-item"><a class="nav-link p-0"

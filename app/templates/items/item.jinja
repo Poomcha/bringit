@@ -1,0 +1,36 @@
+<li>
+    <div class="row">
+        <div class="col-3">
+            {% if item["details"]['item_thumb_url'] %}
+            <img src="{{ item['details']['item_thumb_url'] }}" class="rounded-2 responsive-image p-0"
+                alt="{{ item['details']['title'] }} image.">
+            {% else %}
+            <i class="bi bi-egg icon text-light me-3"></i>
+            {% endif %}
+        </div>
+        <div class="col-9">
+            <h6 class="text-light">{{ item["details"]["title"] }}</h6>
+            <span class="text-light">{{ item["details"]["type"] }}</span>
+        </div>
+    </div>
+    <div class="d-flex flex-column">
+        <span class="text-light">{{ item["details"]["external_link"] }}</span>
+        <p class="text-light">{{ item["details"]["description"] }}</p>
+        <form method="post">
+            {% if user_id in item["users_id"] %}
+            <button type="submit"
+                formaction="{{ url_for('items.unregister', list_id=ls['id'], item_id=item['details']['id'], user_id=user_id) }}"
+                class="btn btn-primary">Unregister</button>
+            {% else %}
+            <button type="submit"
+                formaction="{{ url_for('items.register', list_id=ls['id'], item_id=item['details']['id'], user_id=user_id) }}"
+                class="btn btn-primary">Register</button>
+            {% endif %}
+        </form>
+    </div>
+    <div>
+        {% for bringer in item["users_infos"] %}
+        {% include "bringers/mini-bringer.jinja" %}
+        {% endfor %}
+    </div>
+</li>

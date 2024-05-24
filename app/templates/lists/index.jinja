@@ -1,0 +1,30 @@
+{% extends "/lists/layout.jinja" %}
+
+{% block title %}My Lists{% endblock %}
+
+{% block section %}
+<h6 class="text-light fw-bold mb-3">My Lists
+    <span class="badge text-bg-secondary ms-1">{{ my_lists | length }}</span>
+</h6>
+<ul class="d-flex flex-column gap-3">
+    {% for list in my_lists %}
+    {% include "lists/mini-list.jinja" %}
+    {% endfor %}
+</ul>
+<h6 class="text-light fw-bold mb-3">Bringers Lists
+    <span class="badge text-bg-secondary ms-1">{{ my_bringers_lists | length }}</span>
+</h6>
+<ul class="d-flex flex-column gap-3">
+    {% for list in my_bringers_lists %}
+    {% include "lists/mini-list.jinja" %}
+    {% endfor %}
+</ul>
+<h6 class="text-light fw-bold mb-3">Old Lists
+    <span class="badge text-bg-secondary ms-1">{{ old_lists | length }}</span>
+</h6>
+<ul class="d-flex flex-column gap-3">
+    {% for list in old_lists %}
+    {% include "lists/mini-list.jinja" %}
+    {% endfor %}
+</ul>
+{% endblock %}

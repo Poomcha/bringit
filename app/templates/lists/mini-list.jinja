@@ -1,0 +1,20 @@
+<div class="bg-light p-1 rounded-3 w-sm-50 card">
+    <a href="{{ url_for('lists.list', list_id=list['id']) }}" class="text-decoration-none">
+        <div class="row g-0">
+            <div class="col-4 d-flex">
+                {% if list['list_thumb_url'] %}
+                <img src="{{ list['list_thumb_url'] }}" class="rounded-2 responsive-image p-0"
+                    alt="{{ list['title'] }} image.">
+                {% else %}
+                <i class="bi bi-list-task icon m-auto"></i>
+                {% endif %}
+            </div>
+            <div class="col-8">
+                <div class="card-body bg-light p-2 ms-2">
+                    <h6 class="fw-bold m-0">{{ list['title'] }}</h6>
+                    <p class="fw-normal fst-italic">{{ list['description']}}</p>
+                </div>
+            </div>
+        </div>
+    </a>
+</div>

@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 
 .body {
-    height: 100dvh;
+    min-height: 100dvh;
 }
 
 .logo {
@@ -45,6 +45,17 @@
     width: 4rem;
     height: 4rem;
     object-fit: cover;
+}
+
+.responsive-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    object-position: center;
+}
+
+li {
+    list-style-type: none;
 }
 
 /* Small devices (landscape phones, 576px and up) */

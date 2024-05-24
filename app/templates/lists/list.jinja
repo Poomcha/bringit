@@ -1,0 +1,26 @@
+{% extends "lists/layout.jinja" %}
+
+{% block section %}
+{% if ls["list_medium_url"] %}
+<img src="{{ ls['list_medium_url'] }}" alt="{{ ls['list_medium_url'] }}" class="rounded-3 image-responsive mb-3" />
+{% endif %}
+<h5 class="fw-bold text-light mb-3">
+    {{ ls["title"] }}
+    <br />
+    <span class="fw-normal fs-6">{{ ls["expires_at"] }}</span>
+</h5>
+<p class="text-light">{{ ls["description"] }}</p>
+<p class="text-light mb-3">
+    {% if ls["created_at"] == ls["updated_at"] %}
+    Created on {{ ls["created_at"] }}
+    {% else %}
+    Updated on {{ ls["updated_at"] }}
+    {% endif %}
+    by <span class="fw-bold">{{ creator["firstname"] }} {{ creator["lastname"] }}</span>
+</p>
+<ul class="d-flex flex-column gap-3">
+    {% for item in items %}
+    {% include "items/item.jinja" %}
+    {% endfor %}
+</ul>
+{% endblock %}

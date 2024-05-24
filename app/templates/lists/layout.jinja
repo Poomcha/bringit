@@ -1,0 +1,35 @@
+{% extends "layout.jinja" %}
+
+{% block title %}{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block main %}
+<div class="d-flex flex-column gap-3 z-2 bg-dark">
+    <nav class="w-100 text-light position-sticky bg-dark" style="top: 65px;">
+        <ul class="p-0 m-0 navbar-nav flex-row gap-3 justify-content-center">
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center gap-1" href="{{ url_for('lists.create') }}">
+                    <i class="bi bi-plus-square icon d-inline-block"></i>
+                    <span class="d-none d-md-inline-block">
+                        Create List
+                    </span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center gap-1" href="{{ url_for('lists.index') }}">
+                    <i class="bi bi-list-task icon d-inline-block"></i>
+                    <span class="d-none d-md-inline-block">
+                        My Lists
+                    </span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <section class="d-flex flex-column">
+        {% block section %}{% endblock %}
+    </section>
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}
