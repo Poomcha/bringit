@@ -62,7 +62,9 @@
         <main class="d-flex flex-column position-relative w-100">
             {% block main %}{% endblock %}
             {% for message in get_flashed_messages() %}
-            <div class="flash alert" role="alert">{{ message }}</div>
+            {% if message %}
+            <div class="flash alert w-100 bg-danger border-danger border-1" role="alert">{{ message }}</div>
+            {% endif %}
             {% endfor %}
         </main>
         <footer>

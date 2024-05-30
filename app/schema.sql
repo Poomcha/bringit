@@ -53,7 +53,6 @@ CREATE TABLE IF NOT EXISTS lists (
     list_thumb_url TEXT UNIQUE,
     list_medium_url TEXT UNIQUE,
     delete_list_url TEXT UNIQUE,
-    external_link TEXT, 
     created_at TEXT DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP NOT NULL,
     expires_at TEXT

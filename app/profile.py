@@ -14,6 +14,13 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from app.db import get_db
 from app.auth import login_required, create_username, load_logged_in_user
 
+from marshmallow import ValidationError
+
+from app.models.info import Info, InfoSchema
+from app.models.user import User, UserSchema
+
+from app.auth import signout
+
 bp = Blueprint("profile", __name__, url_prefix="/profile")
 
 
@@ -55,13 +62,33 @@ def profile():
         if not lastname:
             error = "You must provide a valid lastname."
 
+        if not (
+            g.user["firstname"].lower() == firstname.lower()
+            and g.user["lastname"].lower() == lastname.lower()
+        ):
+            username = create_username(firstname, lastname)
+
+        info = Info(
+            user_id=g.user["id"],
+            firstname=firstname,
+            lastname=lastname,
+            username=username,
+            description=description,
+            avatar_url=image_url,
+            avatar_thumb_url=thumb_url,
+            avatar_medium_url=medium_url,
+            delete_avatar_url=delete_url,
+        )
+        infoSchema = InfoSchema()
+        infoDict = infoSchema.dump(info)
+
+        try:
+            infoSchema.load(infoDict)
+        except ValidationError as err:
+            error = err.messages
+
         if error == None:
             # Generate username if necessary
-            if not (
-                g.user["firstname"].lower() == firstname.lower()
-                and g.user["lastname"].lower() == lastname.lower()
-            ):
-                username = create_username(firstname, lastname)
 
             # Update db
             # Update email if necessary
@@ -134,6 +161,15 @@ def password():
         if not check_password_hash(user_password, old_password):
             error = "Wrong old password."
 
+        user = User(g.user["email"], password, confirmation)
+        userSchema = UserSchema()
+        userDict = userSchema.dump(user)
+
+        try:
+            userSchema.load(userDict)
+        except ValidationError as err:
+            error = err.messages
+
         if error == None:
             # Update db
             db.execute(
@@ -148,3 +184,88 @@ def password():
         flash(error)
 
     return redirect(url_for("profile.profile"))
+
+
+@bp.route("/delete/<int:user_id>", methods=["GET"])
+@login_required
+def delete(user_id):
+    db = get_db()
+    error = None
+
+    if g.user["id"] == user_id:
+        db.execute(
+            """
+            DELETE FROM users WHERE id = (?)
+            """,
+            (user_id,),
+        )
+        db.execute(
+            """
+            DELETE FROM infos WHERE user_id = (?)
+            """,
+            (g.user["id"]),
+        )
+        db.execute(
+            """
+            DELETE FROM lists_items WHERE list_id IN (
+                SELECT list_id FROM lists_users
+                    WHERE user_id = (?) AND right = (?)
+            )
+            """,
+            (
+                g.user["id"],
+                "CREATOR",
+            ),
+        )
+        db.execute(
+            """
+            DELETE FROM lists WHERE id IN (
+                SELECT list_id FROM lists_users
+                    WHERE user_id = (?) AND right = (?)
+            )
+            """,
+            (
+                g.user["id"],
+                "CREATOR",
+            ),
+        )
+        db.execute(
+            """
+            DELETE FROM items_users WHERE item_id IN (
+                SELECT id FROM items WHERE creator_id = (?)
+            )
+            """,
+            (g.user["id"]),
+        )
+        db.execute(
+            """
+            DELETE FROM items WHERE creator_id = (?)
+            """,
+            (g.user["id"],),
+        )
+        db.execute(
+            """
+            DELETE FROM users_users WHERE sender_id = (?) OR receiver_id = (?)
+            """,
+            (
+                g.user["id"],
+                g.user["id"],
+            ),
+        )
+        db.execute(
+            """
+            DELETE FROM lists_users WHERE user_id = (?) AND right = (?)
+            """,
+            (
+                g.user["id"],
+                "CREATOR",
+            ),
+        )
+        db.commit()
+        signout()
+    else:
+        error = "You can't access this page."
+
+    flash(error)
+
+    return redirect(url_for("index.index"))

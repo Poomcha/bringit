@@ -1,5 +1,7 @@
 import functools
 
+from marshmallow import ValidationError
+
 from random import randrange
 
 from flask import (
@@ -16,6 +18,8 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.db import get_db
+from app.models.user import User, UserSchema
+from app.models.info import Info, InfoSchema
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -76,16 +80,22 @@ def signup():
     db = get_db()
     error = None
 
-    if not email:
-        error = "Email is required."
-    if not firstname:
-        error = "Firstname is required."
-    if not lastname:
-        error = "Lastname is required."
-    if not password:
-        error = "Password is required."
-    if not confirmation or not confirmation == password:
-        error = "Password and confirmation mismatch."
+    user = User(email=email, password=password, confirmation=confirmation)
+    userSchema = UserSchema()
+    userDict = userSchema.dump(user)
+
+    info = {"firstname": firstname, "lastname": lastname}
+    infoSchema = InfoSchema()
+    infoDict = infoSchema.dump(info)
+
+    # Validate user and infos
+    if user.password != user.confirmation:
+        error = "Password and confirmation mismatch!"
+    try:
+        userVal = userSchema.load(userDict)
+        infoVal = infoSchema.load(infoDict)
+    except ValidationError as err:
+        error = err.messages
 
     # Need more validation and password safety
 
@@ -98,9 +108,11 @@ def signup():
                     generate_password_hash(password),
                 ),
             )
+            print("Got here")
             user_id = db.execute(
                 "SELECT id FROM users WHERE email = (?)", (email,)
             ).fetchone()["id"]
+            print("Got there")
             db.execute(
                 "INSERT INTO infos (firstname, lastname, user_id, username) VALUES (?, ?, ?, ?)",
                 (
@@ -110,7 +122,9 @@ def signup():
                     create_username(firstname, lastname),
                 ),
             )
+            print("Got there too")
             db.commit()
+            print("Data commited")
         except db.IntegrityError:
             error = f"Email {email} is already registered."
         else:
@@ -130,6 +144,15 @@ def signin():
 
     db = get_db()
     error = None
+
+    user = User(email=email, password=password, confirmation=password)
+    userSchema = UserSchema()
+    userDict = userSchema.dump(user)
+
+    try:
+        userVal = userSchema.load(userDict)
+    except ValidationError as err:
+        error = err.messages
 
     user = db.execute("SELECT * FROM users WHERE email = (?)", (email,)).fetchone()
 

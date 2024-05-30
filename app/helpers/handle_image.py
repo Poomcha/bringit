@@ -33,9 +33,10 @@ def delete_image_user(user_id):
 
     delete_url = db.execute(
         "SELECT delete_avatar_url FROM infos WHERE user_id = (?)", (user_id,)
-    ).fetchone()["delete_avatar_url"]
+    ).fetchone()
 
-    r = requests.post(delete_url)
+    if delete_url and delete_url["delete_item_url"]:
+        r = requests.post(delete_url["delete_avatar_url"])
     return
 
 
@@ -44,9 +45,10 @@ def delete_image_list(list_id):
 
     delete_url = db.execute(
         "SELECT delete_list_url FROM lists WHERE id = (?)", (list_id,)
-    ).fetchone()["delete_list_url"]
+    ).fetchone()
 
-    r = requests.post(delete_url)
+    if delete_url and delete_url["delete_list_url"]:
+        r = requests.post(delete_url["delete_list_url"])
     return
 
 
@@ -55,7 +57,8 @@ def delete_image_item(item_id):
 
     delete_url = db.execute(
         "SELECT delete_item_url FROM items WHERE id = (?)", (item_id,)
-    ).fetchone()["delete_item_url"]
+    ).fetchone()
 
-    r = requests.post(delete_url)
+    if delete_url and delete_url["delete_item_url"]:
+        r = requests.post(delete_url["delete_item_url"])
     return

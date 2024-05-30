@@ -6,6 +6,11 @@ from app.helpers import handle_image
 
 from datetime import datetime
 
+from app.models.list import List, ListSchema
+from app.models.items import Item, ItemSchema
+
+from marshmallow import ValidationError
+
 bp = Blueprint("lists", __name__, url_prefix="/lists")
 
 
@@ -16,6 +21,9 @@ def index():
 
     list_ids = get_lists_id_for_user(db, g.user["id"])
     lists = [get_list_details(db, list_id["id"]) for list_id in list_ids]
+
+    for row in list_ids:
+        print(row)
 
     now = datetime.fromisoformat(datetime.now().strftime("%Y-%m-%dT%H:%M:%S"))
 
@@ -96,7 +104,10 @@ def create():
         list_id = set_list(db, post_list, g.user["id"])
 
         # Save items
-        [set_item_for_list(db, item, list_id, g.user["id"]) for item in post_items]
+        if list_id:
+            [set_item_for_list(db, item, list_id, g.user["id"]) for item in post_items]
+        else:
+            return redirect(url_for("lists.create"))
 
         return redirect(url_for("lists.index"))
 
@@ -202,7 +213,7 @@ def delete(list_id):
 
         # Delete related item image
         items_ids = [item["id"] for item in get_items_id_for_list(db, list_id)]
-        [remove_item(db, item_id) for items_id in items_ids]
+        [remove_item(db, item_id) for item_id in items_ids]
 
         db.execute(
             """
@@ -211,6 +222,17 @@ def delete(list_id):
             """,
             (list_id,),
         )
+        db.commit()
+
+        # Delete lists_users relations
+        db.execute(
+            """
+            DELETE FROM lists_users
+                WHERE list_id = (?)
+            """,
+            (list_id,),
+        )
+        db.commit()
 
     return redirect(url_for("lists.index"))
 
@@ -358,37 +380,62 @@ def set_list(db, post_list, user_id, modify=False):
         "list_medium_url": medium_url,
         "delete_list_url": delete_url,
         "expires_at": post_list["date"],
+        "created_at": datetime.now(),
+        "updated_at": datetime.now(),
     }
-    # Save list
-    list_id = db.execute(
-        """
-        INSERT INTO lists (creator_id, title, description, list_url, list_thumb_url, list_medium_url, delete_list_url, expires_at, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            new_list["creator_id"],
-            new_list["title"],
-            new_list["description"],
-            new_list["list_url"],
-            new_list["list_thumb_url"],
-            new_list["list_medium_url"],
-            new_list["delete_list_url"],
-            new_list["expires_at"],
-            datetime.now(),
-            datetime.now(),
-        ),
-    ).lastrowid
-    db.commit()
 
-    # Save bringers
-    post_list["bringers"].append(g.user["id"])
-    for bringer in post_list["bringers"]:
-        if bringer == g.user["id"]:
-            set_user_for_list(db, bringer, list_id, "CREATOR")
-        else:
-            set_user_for_list(db, bringer, list_id, "INVITED")
+    ls = List(
+        new_list["creator_id"],
+        new_list["title"],
+        new_list["description"],
+        new_list["list_url"],
+        new_list["list_thumb_url"],
+        new_list["list_medium_url"],
+        new_list["delete_list_url"],
+        new_list["created_at"],
+        new_list["updated_at"],
+        new_list["expires_at"],
+    )
+    lsSchema = ListSchema()
+    lsDict = lsSchema.dump(ls)
 
-    return list_id
+    try:
+        lsSchema.load(lsDict)
+    except ValidationError as err:
+        flash(err.messages)
+    else:
+        # Save list
+        list_id = db.execute(
+            """
+            INSERT INTO lists (creator_id, title, description, list_url, list_thumb_url, list_medium_url, delete_list_url, expires_at, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                new_list["creator_id"],
+                new_list["title"],
+                new_list["description"],
+                new_list["list_url"],
+                new_list["list_thumb_url"],
+                new_list["list_medium_url"],
+                new_list["delete_list_url"],
+                new_list["expires_at"],
+                new_list["created_at"],
+                new_list["updated_at"],
+            ),
+        ).lastrowid
+        db.commit()
+
+        # Save bringers
+        post_list["bringers"].append(g.user["id"])
+        for bringer in post_list["bringers"]:
+            if bringer == g.user["id"]:
+                set_user_for_list(db, bringer, list_id, "CREATOR")
+            else:
+                set_user_for_list(db, bringer, list_id, "INVITED")
+
+        return list_id
+
+    return None
 
 
 def set_item_for_list(db, post_item, list_id, creator_id, modify=False):

@@ -96,6 +96,9 @@
             <button class="btn btn-primary fw-bold" disabled type="submit" id="save-password">Save</button>
         </div>
     </form>
+    <div class="d-flex mb-3">
+        <a href="{{ url_for('profile.delete', user_id=g.user['id']) }}" class="btn btn-danger m-auto">DELETE ACCOUNT</a>
+    </div>
 </section>
 {% endblock %}
 
