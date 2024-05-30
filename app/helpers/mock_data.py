@@ -6,7 +6,7 @@ from app.auth import create_username
 
 from werkzeug.security import generate_password_hash
 
-GLOBAL_PASSWORD = "1234"
+GLOBAL_PASSWORD = "12345678"
 
 
 @click.command("load-mock")
