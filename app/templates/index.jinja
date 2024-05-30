@@ -12,8 +12,8 @@
         <p class="mt-3">Go check <a href="{{ url_for('lists.index') }}">your lists</a> or <a
                 href="{{ url_for('bringers.index') }}">your bringers</a>!</p>
         {% else %}
-        <p class="mt-3"><a href="{{ url_for('auth.signup') }}">Create an account</a> or <a
-                href="{{ url_for('auth.signin') }}">signin</a> to start creating new lists!</p>
+        <p class="mt-3"><a href="{{ url_for('auth.auth') }}">Create an account</a> or <a
+                href="{{ url_for('auth.auth') }}">signin</a> to start creating new lists!</p>
         {% endif %}
     </section>
 

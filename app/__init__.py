@@ -47,10 +47,4 @@ def create_app(test_config=None):
     app.register_blueprint(lists.bp)
     app.register_blueprint(items.bp)
 
-    # Register Jinja fliters
-    # from . import filters
-
-    # See : https://flask.palletsprojects.com/en/3.0.x/templating/#controlling-autoescaping
-    # And : https://stackoverflow.com/questions/21885814/how-to-iterate-through-a-modules-functions
-
     return app

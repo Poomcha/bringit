@@ -21,23 +21,23 @@ class ItemSchema(Schema):
     creator_id = fields.Int(required=True, validate=validate.Range(min=1))
     title = fields.Str(
         required=True,
-        validate=validate.Regexp("^[a-zA-Z0-9'-_#$=@:\/;\.\?\,\!]{,50}$"),
+        validate=validate.Regexp("^[a-zA-Z0-9'\-_#$=@:\/;\.\?\,\!\s]{0,50}$"),
     )
     description = fields.Str(
         required=False,
-        validate=validate.Regexp("^[a-zA-Z0-9'-_#$=@:\/;\.\?\,\!]{,200}$"),
+        validate=validate.Regexp("^[a-zA-Z0-9'\-_#$=@:\/;\.\?\,\!\s]{0,200}$"),
         allow_none=True,
     )
     external_link = fields.Url(required=False, allow_none=True)
     type = fields.Str(
         required=False,
-        validate=validate.Regexp("^[a-zA-Z0-9'-_#$=@:\/;\.\?\,\!]{,20}$"),
+        validate=validate.Regexp("^[a-zA-Z0-9'\-_#$=@:\/;\.\?\,\!\s]{0,20}$"),
         allow_none=True,
     )
     item_url = fields.Url(required=False, allow_none=True)
     item_thumb_url = fields.Url(required=False, allow_none=True)
     item_medium_url = fields.Url(required=False, allow_none=True)
     delete_item_url = fields.Url(required=False, allow_none=True)
-    created_at = fields.DateTime(required=False)
-    updated_at = fields.DateTime(required=False)
-    expires_at = fields.DateTime(required=False)
+    created_at = fields.Str(required=False)
+    updated_at = fields.Str(required=False)
+    expires_at = fields.Str(required=False)

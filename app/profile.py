@@ -42,6 +42,8 @@ def profile():
         # Upload image to goopics.net
         from app.helpers.handle_image import upload_image, delete_image_user
 
+        [image_url, thumb_url, medium_url, delete_url] = [None, None, None, None]
+
         if avatar:
             if g.user["avatar_url"]:
                 delete_image_user(g.user["id"])

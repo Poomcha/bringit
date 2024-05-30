@@ -35,7 +35,7 @@ def delete_image_user(user_id):
         "SELECT delete_avatar_url FROM infos WHERE user_id = (?)", (user_id,)
     ).fetchone()
 
-    if delete_url and delete_url["delete_item_url"]:
+    if delete_url and delete_url["delete_avatar_url"]:
         r = requests.post(delete_url["delete_avatar_url"])
     return
 

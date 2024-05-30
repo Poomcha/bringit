@@ -97,8 +97,6 @@ def signup():
     except ValidationError as err:
         error = err.messages
 
-    # Need more validation and password safety
-
     if error is None:
         try:
             db.execute(

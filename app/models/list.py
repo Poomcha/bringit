@@ -31,17 +31,17 @@ class ListSchema(Schema):
     creator_id = fields.Int(required=True, validate=validate.Range(min=1))
     title = fields.Str(
         required=True,
-        validate=validate.Regexp("^[a-zA-Z0-9'-_#$=@:\/;\.\?\,\!]{,50}$"),
+        validate=validate.Regexp("^[a-zA-Z0-9'\-_#$=@:\/;\.\?\,\!\s]{0,50}$"),
     )
     description = fields.Str(
         required=False,
-        validate=validate.Regexp("^[a-zA-Z0-9'-_#$=@:\/;\.\?\,\!]{,200}$"),
+        validate=validate.Regexp("^[a-zA-Z0-9'\-_#$=@:\/;\.\?\,\!\s]{0,200}$"),
         allow_none=True,
     )
     list_url = fields.Url(required=False, allow_none=True)
     list_thumb_url = fields.Url(required=False, allow_none=True)
     list_medium_url = fields.Url(required=False, allow_none=True)
     delete_list_url = fields.Url(required=False, allow_none=True)
-    created_at = fields.DateTime(required=False)
-    updated_at = fields.DateTime(required=False)
-    expires_at = fields.DateTime(required=True)
+    created_at = fields.Str(required=False)
+    updated_at = fields.Str(required=False)
+    expires_at = fields.Str(required=True)
